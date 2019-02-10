@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LiveLog</title>
+    <meta charset="utf-8">
+    <script src="lib/ace-noconflict/ace.js"></script>
+    <script src="log-line.js"></script>
+    <script src="web-socket-client.js"></script>
+    <script src="log-file-view.js"></script>
+    <script src="log-file-summary-view.js"></script>
+    <!-- FIXME: Turn other scripts into modules and load them via require, also for ace editor -->
+    <script data-main="index.js" src="require.js"></script>
+    <style>
+        body {
+            font-family: "Open Sans", "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+            font-size: 12px;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 0;
+            font-size: 12px;
+        }
+
+        #container {
+            /* FIXME: Scrollbar at 100vh -> why? */
+            height: 97vh;
+            margin: 0;
+            flex-direction: column;
+            display: flex;
+        }
+
+        .with-borders {
+            border-color: lightgray;
+            border-width: 1px;
+            border-style: solid;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        #toolBar {
+            background-color: rgb(48, 48, 48);
+            color: white;
+            padding: 5px;
+        }
+
+        #splitView {
+            flex-direction: column;
+            display: flex;
+            /* FIXME: Cannot use flex: 1 here must set height for firefox otherwise the splitter grows larger than window height*/
+            height: 95vh;
+            /*flex: 1;*/
+        }
+
+        #logFileSummaryContainer {
+            flex-direction: column;
+            display: flex;
+        }
+
+        #logFileSummaryView {
+            overflow: auto;
+            flex: 1;
+        }
+
+        #logFileSummaryView > div {
+            margin-bottom: 2px;
+        }
+
+        #logFileSummaryView ul {
+            padding-left: 0;
+            list-style-type: none;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        #logFileSummaryView li {
+            margin-bottom: 2px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-family: "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro", monospace;
+        }
+
+        #logFileContainer {
+            flex-direction: column;
+            display: flex;
+        }
+
+        #logFileView {
+            flex: 1;
+            overflow: auto;
+        }
+
+        #serverConnection {
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 99999;
+        }
+
+        #serverConnection > div {
+            display: flex;
+            align-items: center;
+            height: 90px;
+            background-color: salmon;
+            opacity: 0.9;
+            padding: 0 20px 0 20px;
+            border-style: solid;
+            border-width: thin;
+            border-color: dimgray;
+            box-shadow: 0 0 5px 5px dimgray;
+        }
+
+        #jsErrors {
+            display: none;
+        }
+
+        /* gutter for the splitter */
+        .gutter {
+            background-color: #eee;
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+
+        .gutter.gutter-vertical {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+            cursor: row-resize;
+        }
+
+        /* classes for ace highlighter used programmatically */
+        .ace_started_in {
+            background-color: rgba(143, 188, 143, 0.4);
+        }
+
+        .ace_warn {
+            background-color: rgba(218, 165, 32, 0.4);
+        }
+
+        .ace_error {
+            background-color: rgba(250, 128, 124, 0.4);
+        }
+    </style>
+</head>
+<body>
+<div id="container">
+    <div id="toolBar">
+        <button id="clearButton" title="Delete lines displayed (but not on the server)">Clear</button>
+        <label for="autoScrollCb" title="Scroll to log file end on new data">Auto scroll</label><input type="checkbox"
+                                                                                                       id="autoScrollCb"
+                                                                                                       checked>
+        <label for="warningsCb" title="Toggle display of warnings in events list">Warnings</label><input type="checkbox"
+                                                                                                         id="warningsCb"
+                                                                                                         checked>
+    </div>
+    <div id="splitView">
+        <div id="logFileSummaryContainer" class="with-borders">
+            <h1>Critical events (descending)</h1>
+            <div id="logFileSummaryView" class="logText"></div>
+        </div>
+        <div id="logFileContainer" class="with-borders">
+            <h1>server.log</h1>
+            <div id="logFileView"></div>
+        </div>
+    </div>
+    <div id="jsErrors">
+    </div>
+</div>
+<div id="serverConnection">
+    <div><img src="assets/loader.gif">&nbsp;Connecting to server...</div>
+</div>
+</body>
+</html>
