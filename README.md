@@ -15,7 +15,7 @@ for use in production systems.
 
 # Build and usage
 
-Compile the project
+Use the [binaries](releases) supplied with the releases or compile the project
 
 ```
 mvn clean install
@@ -58,8 +58,8 @@ mvn verify -Pe2eTests
 ```
 # Licenses
 
-Livelog is published under the MIT license, for details see the LICENSE.txt file.
+Livelog is published under the MIT license, for details see the [LICENSE.txt](LICENSE.txt) file.
 
-Livelog uses a number of third party modules listed in the THIRD-PARTY.txt and THIRD-PARTY-WEB.txt files. 
+Livelog uses a number of third party modules listed in the [THIRD-PARTY.txt](THIRD-PARTY.txt) and [THIRD-PARTY-WEB.txt](THIRD-PARTY-WEB.txt) files. 
 
 
